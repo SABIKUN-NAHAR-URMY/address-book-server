@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { MongoClient, ServerApiVersion} = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId} = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 require('dotenv').config();
@@ -41,11 +41,45 @@ async function run() {
             res.send(address);
         })
 
+        app.get('/address/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const review = await addressCollection.findOne(query);
+            res.send(review);
+        })
+
         app.post('/address', async (req, res) => {
             const address = req.body;
             const result = await addressCollection.insertOne(address);
             res.send(result);
         })
+
+        app.patch('/address/:id', async (req, res) => {
+            const id = req.params.id;
+            const name = req.body.name;
+            const email = req.body.email;
+            const phone = req.body.phone;
+            const query = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    name: name,
+                    email: email,
+                    phone: phone
+                }
+            }
+            const result = await addressCollection.updateOne(query, updateDoc);
+            res.send(result);
+
+        })
+
+        // app.delete('/reviews/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: ObjectId(id) };
+        //     const result = await reviewsCollection.deleteOne(query);
+        //     res.send(result);
+
+        // })
+
     }
     finally {
 
